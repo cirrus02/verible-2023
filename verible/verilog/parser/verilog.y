@@ -228,6 +228,7 @@ is not locally defined, so the grammar here uses only generic identifiers.
 
 // gen_tokenizer start STRING_LITERAL
 %token TK_StringLiteral         // STRING
+%token TK_TripleQuotedStringLiteral  // STRING (IEEE 1800-2023)
 %token TK_EvalStringLiteral     // STRING
 %token TK_AngleBracketInclude   // STRING
 
@@ -2230,6 +2231,21 @@ description
     { $$ = MakeTaggedNode(N::kAttribute, $1,
                           MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
                                          $8)); }
+  | TKK_attribute '(' GenericIdentifier ','
+    TK_TripleQuotedStringLiteral ',' TK_StringLiteral ')'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8)); }
+  | TKK_attribute '(' GenericIdentifier ','
+    TK_StringLiteral ',' TK_TripleQuotedStringLiteral ')'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8)); }
+  | TKK_attribute '(' GenericIdentifier ','
+    TK_TripleQuotedStringLiteral ',' TK_TripleQuotedStringLiteral ')'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8)); }
   | bind_directive
     { $$ = std::move($1); }
   | preprocessor_balanced_description_items
@@ -2644,6 +2660,8 @@ modport_ports_list
 dpi_spec_string
   : TK_StringLiteral
     { $$ = std::move($1); }
+  | TK_TripleQuotedStringLiteral
+    { $$ = std::move($1); }
   /* TODO(fangism): Verify this is "DPI-C" or "DPI". */
   ;
 dpi_import_property_opt
@@ -3050,6 +3068,8 @@ misc_directive
   | DR_begin_keywords TK_StringLiteral
     { $$ = MakeTaggedNode(N::kTopLevelDirective, $1, $2); }
     /* $2 should name a standard, e.g. "1800-2012" or "1364-2005" */
+  | DR_begin_keywords TK_TripleQuotedStringLiteral
+    { $$ = MakeTaggedNode(N::kTopLevelDirective, $1, $2); }
   | DR_end_keywords
     { $$ = std::move($1); }
   ;
@@ -3967,6 +3987,7 @@ nature_items
   ;
 nature_item
   : TK_units '=' TK_StringLiteral ';'
+  | TK_units '=' TK_TripleQuotedStringLiteral ';'
   | TK_abstol '=' expression ';'
   | TK_access '=' GenericIdentifier ';'
   | TK_idt_nature '=' GenericIdentifier ';'
@@ -4756,6 +4777,8 @@ string_literal
     { $$ = std::move($1); }
   | TK_EvalStringLiteral
     { $$ = std::move($1); }
+  | TK_TripleQuotedStringLiteral
+    { $$ = std::move($1); }
   ;
 
 expr_primary_no_groups
@@ -5458,6 +5481,8 @@ label_opt
 module_attribute_foreign
   : TK_PSTAR GenericIdentifier TK_integer GenericIdentifier '=' TK_StringLiteral ';' TK_STARP
     { $$ = MakeTaggedNode(N::kModuleAttributeForeign, $1, $2, $3, $4, $5, $6, $7, $8); }
+  | TK_PSTAR GenericIdentifier TK_integer GenericIdentifier '=' TK_TripleQuotedStringLiteral ';' TK_STARP
+    { $$ = MakeTaggedNode(N::kModuleAttributeForeign, $1, $2, $3, $4, $5, $6, $7, $8); }
   ;
 module_attribute_foreign_opt
   : module_attribute_foreign
@@ -5941,6 +5966,18 @@ non_port_module_item
   | module_or_interface_declaration
     { $$ = std::move($1); }
   | TKK_attribute '(' GenericIdentifier ',' TK_StringLiteral ',' TK_StringLiteral ')' ';'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8), $9); }
+  | TKK_attribute '(' GenericIdentifier ',' TK_TripleQuotedStringLiteral ',' TK_StringLiteral ')' ';'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8), $9); }
+  | TKK_attribute '(' GenericIdentifier ',' TK_StringLiteral ',' TK_TripleQuotedStringLiteral ')' ';'
+    { $$ = MakeTaggedNode(N::kAttribute, $1,
+                          MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
+                                         $8), $9); }
+  | TKK_attribute '(' GenericIdentifier ',' TK_TripleQuotedStringLiteral ',' TK_TripleQuotedStringLiteral ')' ';'
     { $$ = MakeTaggedNode(N::kAttribute, $1,
                           MakeParenGroup($2, MakeNode($3, $4, $5, $6, $7),
                                          $8), $9); }
