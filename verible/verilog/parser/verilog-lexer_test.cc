@@ -1375,6 +1375,18 @@ static std::initializer_list<SimpleTestData> kEvalStringLiteralTests = {
     {"`\"```\""},         // token concatenation operator in middle
 };
 
+// Triple-quoted string literals (IEEE 1800-2023)
+static std::initializer_list<SimpleTestData> kTripleQuotedStringLiteralTests = {
+    {"\"\"\"\"\"\""},                       // empty string
+    {"\"\"\"hello\"\"\""},                  // basic string
+    {"\"\"\"hello world\"\"\""},            // with spaces
+    {"\"\"\"line1\nline2\"\"\""},           // with newlines
+    {"\"\"\"line1\nline2\nline3\"\"\""},    // multiple newlines
+    {"\"\"\"  indented\n  string\"\"\""},   // with indentation
+    {"\"\"\"Special: @#$%^&*()\"\"\""},     // special characters
+    {"\"\"\"Tab\there\"\"\""},              // with tabs
+};
+
 // tokens with special handling in lexer
 static std::initializer_list<LexerTestData> kTrickyTests = {
     {{TK_COLON_DIV, ":/"}, {TK_SPACE, " "}},
@@ -2329,6 +2341,9 @@ TEST(VerilogLexerTest, Tricky) { TestLexer(kTrickyTests); }
 TEST(VerilogLexerTest, Sequence) { TestLexer(kSequenceTests); }
 TEST(VerilogLexerTest, StringLiteral) {
   TestLexer(kStringLiteralTests, TK_StringLiteral);
+}
+TEST(VerilogLexerTest, TripleQuotedStringLiteral) {
+  TestLexer(kTripleQuotedStringLiteralTests, TK_TripleQuotedStringLiteral);
 }
 TEST(VerilogLexerTest, EvalStringLiteral) {
   TestLexer(kEvalStringLiteralTests, TK_EvalStringLiteral);

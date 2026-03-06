@@ -172,6 +172,11 @@ StringContent  ([^\r\n"\\]|{EscapeSequence}|\\{LineTerminator})*
 UnterminatedStringLiteral  \"{StringContent}
 StringLiteral  {UnterminatedStringLiteral}\"
 
+/* Triple-quoted string literal (IEEE 1800-2023) */
+/* Allows newlines and unescaped quotes inside, terminated by """ */
+/* Match content: any char except quote, or 1-2 quotes followed by non-quote */
+TripleQuotedStringLiteral  \"\"\"([^\"]|\"[^\"]|\"\"[^\"])*\"\"\"
+
 /* Preprocessor-evaluated string literal */
 EvalStringLiteralContent ([^`]|(`[^"]))*
 UnterminatedEvalStringLiteral `\"{EvalStringLiteralContent}
@@ -893,6 +898,7 @@ zi_zp { UpdateLocation(); return TK_zi_zp; }
 [}{;:\[\],()'#=@&!?<>%|^~+*/-] { UpdateLocation(); return yytext[0]; }
 
 {StringLiteral} { UpdateLocation(); return TK_StringLiteral; }
+{TripleQuotedStringLiteral} { UpdateLocation(); return TK_TripleQuotedStringLiteral; }
 {EvalStringLiteral} { UpdateLocation(); return TK_EvalStringLiteral; }
 {UnterminatedStringLiteral} {
   /* TODO(fangism): Is it worth returning the \n back to the input stream? */
